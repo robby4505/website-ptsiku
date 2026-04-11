@@ -1,10 +1,15 @@
 /**
- * SISIKU Chatbot - OpenRouter + FlowKirim Integration
+ * SISIKU Chatbot - Secure Backend Integration
  * PT Sinergi Insan Karya Utama
+ * API Keys are secure on backend, never exposed to client
  */
 
-// Import configuration
-import CONFIG from '../../config.js';
+// Configuration - API endpoints (no secrets here)
+const API_CONFIG = {
+  CHAT_ENDPOINT: '/api/chat',
+  WHATSAPP_ENDPOINT: '/api/whatsapp',
+  PHONE_NUMBER: '6282278399722'
+};
 
 // ================= CHATBOT WIDGET CREATOR =================
 function createChatbotWidget() {
@@ -146,46 +151,39 @@ function addMessage(text, sender) {
   messages.scrollTop = messages.scrollHeight;
 }
 
-// ================= CALL OPENROUTER API =================
+// ================= CALL BACKEND CHAT API (SECURE) =================
 async function callOpenRouterAPI(userMessage) {
-  const config = CONFIG.OPENROUTER;
-  
-  const response = await fetch(config.API_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${config.API_KEY}`,
-      'HTTP-Referer': config.SITE_URL,
-      'X-Title': config.SITE_NAME
-    },
-    body: JSON.stringify({
-      model: config.MODEL,
-      messages: [
-        { role: 'system', content: CONFIG.SYSTEM_PROMPT },
-        { role: 'user', content: userMessage }
-      ],
-      temperature: CONFIG.TEMPERATURE,
-      max_tokens: CONFIG.MAX_TOKENS
-    })
-  });
-
-  if (!response.ok) {
-    const err = await response.json().catch(() => ({}));
-    throw new Error(`API Error: ${response.status} - ${err.error?.message || 'Unknown'}`);
-  }
-
-  const data = await response.json();
-  return data.choices?.[0]?.message?.content || 'Maaf, saya tidak bisa memproses permintaan ini.';
-}
-
-// ================= FLOWKIRIM WHATSAPP INTEGRATION =================
-async function sendViaFlowKirim(message, phoneNumber = CONFIG.FLOWKIRIM.PHONE_NUMBER) {
   try {
-    const response = await fetch(CONFIG.FLOWKIRIM.API_URL, {
+    const response = await fetch(API_CONFIG.CHAT_ENDPOINT, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${CONFIG.FLOWKIRIM.API_KEY}`
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        message: userMessage
+      })
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(`API Error: ${response.status} - ${err.error?.message || 'Unknown'}`);
+    }
+
+    const data = await response.json();
+    return data.reply || 'Maaf, saya tidak bisa memproses permintaan ini.';
+  } catch (error) {
+    console.error('Chat API error:', error);
+    throw error;
+  }
+}
+
+// ================= SEND VIA WHATSAPP (SECURE BACKEND) =================
+async function sendViaFlowKirim(message, phoneNumber = API_CONFIG.PHONE_NUMBER) {
+  try {
+    const response = await fetch(API_CONFIG.WHATSAPP_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         to: phoneNumber,
@@ -197,7 +195,7 @@ async function sendViaFlowKirim(message, phoneNumber = CONFIG.FLOWKIRIM.PHONE_NU
     const result = await response.json();
     return result.success || false;
   } catch (error) {
-    console.error('FlowKirim error:', error);
+    console.error('WhatsApp API error:', error);
     return false;
   }
 }

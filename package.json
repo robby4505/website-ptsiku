@@ -1,11 +1,14 @@
 {
   "name": "website-siku",
   "version": "1.0.0",
+  "type": "module",
   "description": "Website resmi PT Sinergi Insan Karya Utama (SIKU) - Konsultasi Manajemen & SDM",
   "main": "index.html",
   "scripts": {
     "start": "npx serve .",
-    "dev": "npx serve . --port 3000",
+    "dev": "npx serve . -l 3000",
+    "server": "node server.js",
+    "server:dev": "node --watch server.js",
     "build": "echo 'No build step required for static site'",
     "preview": "npx serve ."
   },
@@ -19,6 +22,12 @@
   ],
   "author": "PT Sinergi Insan Karya Utama",
   "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "node-fetch": "^3.3.2"
+  },
   "devDependencies": {
     "serve": "^14.2.1"
   },

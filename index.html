@@ -33,132 +33,165 @@
       </div>
     </section>
 
-    <!-- TENTANG KAMI (DIPINDAH KE ATAS) -->
-    <section class="section about" id="tentang">
-      <div class="container">
-        <header class="section__header">
-          <h2 class="section__title">Tentang Kami</h2>
-          <p class="section__desc">PT SINERGI INSAN KARYA UTAMA (SIKU) hadir sebagai mitra strategis dalam transformasi operasional & pengembangan sumber daya manusia, berlandaskan NIB 0904250066404.</p>
-        </header>
-        <div class="about__grid">
-          <article class="about__card">
-            <h3>Visi</h3>
-            <p>Menjadi partner konsultasi terdepan yang memberdayakan bisnis Indonesia melalui tata kelola profesional & SDM unggul.</p>
-          </article>
-          <article class="about__card">
-            <h3>Misi</h3>
-            <p>Memberikan solusi berbasis data, pelatihan terukur, dan pendampingan implementasi yang berkelanjutan.</p>
-          </article>
-          <article class="about__card">
-            <h3>Nilai Inti</h3>
-            <p>Integritas, Kolaborasi, Adaptabilitas, & Hasil Terukur.</p>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <!-- JADWAL PELATIHAN (DIPINDAH KE BAWAH - 4 JUDUL) -->
-    <section class="section jadwal-section" id="jadwal">
-      <div class="container">
-        <header class="section__header">
-          <h2 class="section__title">Jadwal Pelatihan Terbaru</h2>
-          <p class="section__desc">Program pelatihan terbuka & in-house untuk pengembangan kompetensi tim Anda.</p>
-        </header>
-        
-        <div class="jadwal-grid">
-          <!-- Jadwal 1 -->
-          <article class="jadwal-card">
-            <div class="jadwal-info">
-              <h3 class="jadwal-title">Workshop Penyusunan KPI & OKR Strategis</h3>
-              <p class="jadwal-date">📅 Coming Soon</p>
+    <section class="section page-grid">
+      <div class="container page-grid__inner">
+        <aside class="blog-sidebar-left">
+          <section class="section blog-section" id="blog">
+            <header class="section__header">
+              <h2 class="section__title">Artikel & Insights</h2>
+              <p class="section__desc">Panduan praktis, tips manajemen, dan studi kasus dari pengalaman lapangan.</p>
+            </header>
+            <div class="sidebar-card blog-filter-card">
+              <h4 class="sidebar-title">Filter Kategori</h4>
+              <select id="blog-category" class="blog-filter">
+                <option value="all">Semua Kategori</option>
+                <option value="HR">HR & SDM</option>
+                <option value="ERP">ERP & Sistem</option>
+                <option value="SDM">Pengembangan SDM</option>
+                <option value="Administrasi">Administrasi</option>
+              </select>
             </div>
-            <div class="jadwal-link-block">
-              <!-- Link blok dikosongkan sementara -->
+            <div class="sidebar-card">
+              <h4 class="sidebar-title">Artikel Terbaru</h4>
+              <ul class="blog-archive" id="blog-archive"></ul>
             </div>
-          </article>
+          </section>
+        </aside>
 
-          <!-- Jadwal 2 -->
-          <article class="jadwal-card">
-            <div class="jadwal-info">
-              <h3 class="jadwal-title">Pelatihan SOP & Risk Management Berbasis ISO</h3>
-              <p class="jadwal-date">📅 Coming Soon</p>
+        <div class="page-right">
+          <section class="section about" id="tentang">
+            <div class="container">
+              <header class="section__header">
+                <h2 class="section__title">Tentang Kami</h2>
+                <p class="section__desc">PT SINERGI INSAN KARYA UTAMA (SIKU) hadir sebagai mitra strategis dalam transformasi operasional & pengembangan sumber daya manusia, berlandaskan NIB 0904250066404.</p>
+              </header>
+              <div class="about__grid">
+                <article class="about__card">
+                  <h3>Visi</h3>
+                  <p>Menjadi partner konsultasi terdepan yang memberdayakan bisnis Indonesia melalui tata kelola profesional & SDM unggul.</p>
+                </article>
+                <article class="about__card">
+                  <h3>Misi</h3>
+                  <p>Memberikan solusi berbasis data, pelatihan terukur, dan pendampingan implementasi yang berkelanjutan.</p>
+                </article>
+                <article class="about__card">
+                  <h3>Nilai Inti</h3>
+                  <p>Integritas, Kolaborasi, Adaptabilitas, & Hasil Terukur.</p>
+                </article>
+              </div>
             </div>
-            <div class="jadwal-link-block"></div>
-          </article>
+          </section>
 
-          <!-- Jadwal 3 -->
-          <article class="jadwal-card">
-            <div class="jadwal-info">
-              <h3 class="jadwal-title">In-House Training: HR Analytics & Payroll Compliance</h3>
-              <p class="jadwal-date">📅 Coming Soon</p>
+          <div class="section-separator"></div>
+
+          <section class="section jadwal-section" id="jadwal">
+            <div class="container">
+              <header class="section__header">
+                <h2 class="section__title">Jadwal Pelatihan Terbaru</h2>
+                <p class="section__desc">Program pelatihan terbuka & in-house untuk pengembangan kompetensi tim Anda.</p>
+              </header>
+              <div class="jadwal-table-wrapper">
+                <table class="jadwal-table">
+                  <thead>
+                    <tr>
+                      <th>Foto</th>
+                      <th>Program Pelatihan</th>
+                      <th>Online</th>
+                      <th>Waktu</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="jadwal-foto"><img src="https://via.placeholder.com/60x60/0F172A/FFFFFF?text=KPI" alt="KPI Training"></td>
+                      <td>Workshop Penyusunan KPI & OKR Strategis</td>
+                      <td>✓ Online</td>
+                      <td>Coming Soon</td>
+                    </tr>
+                    <tr>
+                      <td class="jadwal-foto"><img src="https://via.placeholder.com/60x60/0F172A/FFFFFF?text=SOP" alt="SOP Training"></td>
+                      <td>Pelatihan SOP & Risk Management Berbasis ISO</td>
+                      <td>✓ Online</td>
+                      <td>Coming Soon</td>
+                    </tr>
+                    <tr>
+                      <td class="jadwal-foto"><img src="https://via.placeholder.com/60x60/0F172A/FFFFFF?text=HR" alt="HR Training"></td>
+                      <td>In-House Training: HR Analytics & Payroll Compliance</td>
+                      <td>✓ Online</td>
+                      <td>Coming Soon</td>
+                    </tr>
+                    <tr>
+                      <td class="jadwal-foto"><img src="https://via.placeholder.com/60x60/0F172A/FFFFFF?text=ADM" alt="Admin Training"></td>
+                      <td>Sertifikasi Kompetensi Administrasi & Digital Office</td>
+                      <td>✓ Online</td>
+                      <td>Coming Soon</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
-            <div class="jadwal-link-block"></div>
-          </article>
+          </section>
 
-          <!-- Jadwal 4 -->
-          <article class="jadwal-card">
-            <div class="jadwal-info">
-              <h3 class="jadwal-title">Sertifikasi Kompetensi Administrasi & Digital Office</h3>
-              <p class="jadwal-date">📅 Coming Soon</p>
+          <section class="section services" id="layanan">
+            <div class="container">
+              <header class="section__header">
+                <h2 class="section__title">Layanan Unggulan</h2>
+                <p class="section__desc">Solusi komprehensif sesuai KBLI: 70209, 78300, 82110 & 85500.</p>
+              </header>
+              <div class="services__grid">
+                <article class="service-card">
+                  <div class="service-card__icon" aria-hidden="true">📊</div>
+                  <h3 class="service-card__title">Konsultasi Manajemen</h3>
+                  <p class="service-card__desc">Perancangan KPI, OKR, SOP, dan Risk Management untuk efisiensi operasional.</p>
+                </article>
+                <article class="service-card">
+                  <div class="service-card__icon" aria-hidden="true">👥</div>
+                  <h3 class="service-card__title">Manajemen SDM</h3>
+                  <p class="service-card__desc">Rekrutmen, HR outsourcing, payroll system, & pengembangan kompetensi tim.</p>
+                </article>
+                <article class="service-card">
+                  <div class="service-card__icon" aria-hidden="true">📁</div>
+                  <h3 class="service-card__title">Jasa Administrasi Kantor</h3>
+                  <p class="service-card__desc">Virtual assistant, pengelolaan dokumen, & dukungan back-office terstruktur.</p>
+                </article>
+              </div>
+              <div class="section__cta">
+                <a href="layanan.html" class="btn btn--primary">Lihat Semua Layanan</a>
+              </div>
             </div>
-            <div class="jadwal-link-block"></div>
-          </article>
-        </div>
-      </div>
-    </section>
+          </section>
 
-    <!-- LAYANAN UNGGULAN -->
-    <section class="section services" id="layanan">
-      <div class="container">
-        <header class="section__header">
-          <h2 class="section__title">Layanan Unggulan</h2>
-          <p class="section__desc">Solusi komprehensif sesuai KBLI: 70209, 78300, 82110 & 85500.</p>
-        </header>
-        <div class="services__grid">
-          <article class="service-card">
-            <div class="service-card__icon" aria-hidden="true">📊</div>
-            <h3 class="service-card__title">Konsultasi Manajemen</h3>
-            <p class="service-card__desc">Perancangan KPI, OKR, SOP, dan Risk Management untuk efisiensi operasional.</p>
-          </article>
-          <article class="service-card">
-            <div class="service-card__icon" aria-hidden="true">👥</div>
-            <h3 class="service-card__title">Manajemen SDM</h3>
-            <p class="service-card__desc">Rekrutmen, HR outsourcing, payroll system, & pengembangan kompetensi tim.</p>
-          </article>
-          <article class="service-card">
-            <div class="service-card__icon" aria-hidden="true">📁</div>
-            <h3 class="service-card__title">Jasa Administrasi Kantor</h3>
-            <p class="service-card__desc">Virtual assistant, pengelolaan dokumen, & dukungan back-office terstruktur.</p>
-          </article>
-        </div>
-        <div class="section__cta">
-          <a href="layanan.html" class="btn btn--primary">Lihat Semua Layanan</a>
-        </div>
-      </div>
-    </section>
+          <section class="section why-us">
+            <div class="container">
+              <header class="section__header">
+                <h2 class="section__title">Mengapa Memilih SIKU?</h2>
+              </header>
+              <div class="features__grid">
+                <div class="feature">
+                  <span class="feature__icon" aria-hidden="true">✅</span>
+                  <h3 class="feature__title">Legal & Terdaftar Resmi</h3>
+                  <p class="feature__desc">Berbadan hukum dengan NIB & KBLI lengkap yang tervalidasi OSS.</p>
+                </div>
+                <div class="feature">
+                  <span class="feature__icon" aria-hidden="true">🎯</span>
+                  <h3 class="feature__title">Berbasis Hasil</h3>
+                  <p class="feature__desc">Pendekatan terukur dengan milestone, KPI tracking, & evaluasi berkala.</p>
+                </div>
+                <div class="feature">
+                  <span class="feature__icon" aria-hidden="true">🤝</span>
+                  <h3 class="feature__title">Pendampingan Penuh</h3>
+                  <p class="feature__desc">Tidak hanya teori. Kami dampingi dari asesmen hingga implementasi lapangan.</p>
+                </div>
+              </div>
+            </div>
+          </section>
 
-    <!-- WHY CHOOSE US -->
-    <section class="section why-us">
-      <div class="container">
-        <header class="section__header">
-          <h2 class="section__title">Mengapa Memilih SIKU?</h2>
-        </header>
-        <div class="features__grid">
-          <div class="feature">
-            <span class="feature__icon" aria-hidden="true">✅</span>
-            <h3 class="feature__title">Legal & Terdaftar Resmi</h3>
-            <p class="feature__desc">Berbadan hukum dengan NIB & KBLI lengkap yang tervalidasi OSS.</p>
-          </div>
-          <div class="feature">
-            <span class="feature__icon" aria-hidden="true">🎯</span>
-            <h3 class="feature__title">Berbasis Hasil</h3>
-            <p class="feature__desc">Pendekatan terukur dengan milestone, KPI tracking, & evaluasi berkala.</p>
-          </div>
-          <div class="feature">
-            <span class="feature__icon" aria-hidden="true">🤝</span>
-            <h3 class="feature__title">Pendampingan Penuh</h3>
-            <p class="feature__desc">Tidak hanya teori. Kami dampingi dari asesmen hingga implementasi lapangan.</p>
-          </div>
+          <section class="cta">
+            <div class="container cta__inner">
+              <h2 class="cta__title">Siap Tingkatkan Performa Bisnis Anda?</h2>
+              <p class="cta__desc">Konsultasikan kebutuhan perusahaan Anda dengan tim ahli kami. Tanpa biaya awal.</p>
+              <a href="https://wa.me/6282278399722?text=Halo%20SIKU,%20saya%20ingin%20konsultasi%20layanan." class="btn btn--accent" target="_blank" rel="noopener">Hubungi via WhatsApp</a>
+            </div>
+          </section>
         </div>
       </div>
     </section>
