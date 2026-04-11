@@ -21,11 +21,19 @@ app.use(express.static('.'));
 
 // Load API keys from environment variables
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const GEMINI_API_URL = process.env.GEMINI_API_URL || 'https://api.openai.com/v1/chat/completions';
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-1.5-mini';
 const FLOWKIRIM_API_KEY = process.env.FLOWKIRIM_API_KEY;
 
-if (!OPENROUTER_API_KEY || !FLOWKIRIM_API_KEY) {
-  console.warn('⚠️  WARNING: Missing API keys in environment variables');
-  console.warn('   Set OPENROUTER_API_KEY and FLOWKIRIM_API_KEY in .env file');
+if (!OPENROUTER_API_KEY && !GEMINI_API_KEY) {
+  console.warn('⚠️  WARNING: Missing chat API keys in environment variables');
+  console.warn('   Set OPENROUTER_API_KEY or GEMINI_API_KEY in .env file');
+}
+
+if (!FLOWKIRIM_API_KEY) {
+  console.warn('⚠️  WARNING: Missing FLOWKIRIM_API_KEY in environment variables');
+  console.warn('   Set FLOWKIRIM_API_KEY in .env file');
 }
 
 // System Prompt
@@ -39,6 +47,33 @@ Jawab pertanyaan pelanggan dengan profesional, ringkas, dan helpful.
 Tawarkan untuk menghubungkan dengan tim jika diperlukan konsultasi lebih detail.`;
 
 // ================= CHAT PROXY =================
+const callGemini = async (message) => {
+  const response = await fetch(GEMINI_API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${GEMINI_API_KEY}`
+    },
+    body: JSON.stringify({
+      model: GEMINI_MODEL,
+      messages: [
+        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'user', content: message }
+      ],
+      temperature: 0.7,
+      max_tokens: 500
+    })
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(`Gemini API error: ${response.status} ${JSON.stringify(error)}`);
+  }
+
+  const data = await response.json();
+  return data.choices?.[0]?.message?.content || 'Maaf, saya tidak bisa memproses permintaan ini.';
+};
+
 app.post('/api/chat', async (req, res) => {
   try {
     const { message } = req.body;
@@ -47,45 +82,64 @@ app.post('/api/chat', async (req, res) => {
       return res.status(400).json({ error: 'Invalid message' });
     }
 
-    if (!OPENROUTER_API_KEY) {
-      return res.status(500).json({ 
-        error: 'API configuration missing', 
-        reply: 'Maaf, fitur chat sedang tidak tersedia. Silakan hubungi kami via WhatsApp.' 
+    if (!OPENROUTER_API_KEY && !GEMINI_API_KEY) {
+      return res.status(500).json({
+        error: 'API configuration missing',
+        reply: 'Maaf, fitur chat sedang tidak tersedia. Silakan hubungi kami via WhatsApp.'
       });
     }
 
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-        'HTTP-Referer': process.env.SITE_URL || 'http://localhost:5000',
-        'X-Title': 'SIKU Chatbot'
-      },
-      body: JSON.stringify({
-        model: 'qwen/qwen3.6-plus-preview:free',
-        messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
-          { role: 'user', content: message }
-        ],
-        temperature: 0.7,
-        max_tokens: 500
-      })
+    if (OPENROUTER_API_KEY) {
+      try {
+        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+            'HTTP-Referer': process.env.SITE_URL || 'http://localhost:5000',
+            'X-Title': 'SIKU Chatbot'
+          },
+          body: JSON.stringify({
+            model: 'qwen/qwen3.6-plus-preview:free',
+            messages: [
+              { role: 'system', content: SYSTEM_PROMPT },
+              { role: 'user', content: message }
+            ],
+            temperature: 0.7,
+            max_tokens: 500
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const reply = data.choices?.[0]?.message?.content || 'Maaf, saya tidak bisa memproses permintaan ini.';
+          return res.json({ reply });
+        }
+
+        const error = await response.json().catch(() => ({}));
+        console.error('OpenRouter API error:', error);
+      } catch (error) {
+        console.error('OpenRouter request failed:', error);
+      }
+    }
+
+    if (GEMINI_API_KEY) {
+      try {
+        const reply = await callGemini(message);
+        return res.json({ reply });
+      } catch (error) {
+        console.error('Gemini API error:', error);
+        return res.status(502).json({
+          error: 'Gemini API Error',
+          reply: 'Maaf, ada masalah dengan server chat. Silakan coba lagi nanti.'
+        });
+      }
+    }
+
+    return res.status(500).json({
+      error: 'Chat API Error',
+      reply: 'Maaf, fitur chat sedang tidak tersedia. Silakan hubungi kami via WhatsApp.'
     });
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      console.error('OpenRouter API error:', error);
-      return res.status(response.status).json({
-        error: 'Chat API Error',
-        reply: 'Maaf, ada kesalahan saat memproses permintaan Anda.'
-      });
-    }
-
-    const data = await response.json();
-    const reply = data.choices?.[0]?.message?.content || 'Maaf, saya tidak bisa memproses permintaan ini.';
-
-    res.json({ reply });
   } catch (error) {
     console.error('Chat endpoint error:', error);
     res.status(500).json({

@@ -1,15 +1,15 @@
 /**
- * Netlify Function: WhatsApp Proxy
+ * Netlify Function: WhatsApp Proxy for SIKU
  * Proxies requests to FlowKirim API securely
  */
 
 const FLOWKIRIM_API_KEY = process.env.FLOWKIRIM_API_KEY;
 
-exports.handler = async (event) => {
-  // Handle CORS preflight
+exports.handler = async (event, context) => {
+  // 1. Handle CORS preflight
   if (event.httpMethod === 'OPTIONS') {
     return {
-      statusCode: 200,
+      statusCode: 204,
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
@@ -18,10 +18,14 @@ exports.handler = async (event) => {
     };
   }
 
+  // 2. Validate Method
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
-      headers: { 'Access-Control-Allow-Origin': '*' },
+      headers: { 
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify({ error: 'Method Not Allowed' })
     };
   }
@@ -32,8 +36,11 @@ exports.handler = async (event) => {
     if (!to || !message) {
       return {
         statusCode: 400,
-        headers: { 'Access-Control-Allow-Origin': '*' },
-        body: JSON.stringify({ error: 'Invalid to or message' })
+        headers: { 
+          'Access-Control-Allow-Origin': '*',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ error: 'Nomor tujuan dan pesan wajib diisi.' })
       };
     }
 
@@ -41,14 +48,18 @@ exports.handler = async (event) => {
       console.error('Missing FLOWKIRIM_API_KEY');
       return {
         statusCode: 500,
-        headers: { 'Access-Control-Allow-Origin': '*' },
+        headers: { 
+          'Access-Control-Allow-Origin': '*',
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify({
           success: false,
-          error: 'WhatsApp API configuration missing'
+          error: 'Konfigurasi WhatsApp belum diatur.'
         })
       };
     }
 
+    // 3. Call FlowKirim API
     const response = await fetch('https://api.flowkirim.com/v1/send-message', {
       method: 'POST',
       headers: {
@@ -62,33 +73,46 @@ exports.handler = async (event) => {
       })
     });
 
+    const result = await response.json();
+
     if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      console.error('FlowKirim API error:', error);
+      console.error('FlowKirim API Error:', result);
       return {
         statusCode: response.status,
-        headers: { 'Access-Control-Allow-Origin': '*' },
+        headers: { 
+          'Access-Control-Allow-Origin': '*',
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify({
           success: false,
-          error: 'WhatsApp API Error'
+          error: result.error || 'Gagal mengirim pesan WhatsApp.'
         })
       };
     }
 
-    const result = await response.json();
     return {
       statusCode: 200,
-      headers: { 'Access-Control-Allow-Origin': '*' },
-      body: JSON.stringify({ success: result.success || false })
+      headers: { 
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ 
+        success: true,
+        data: result 
+      })
     };
+
   } catch (error) {
-    console.error('WhatsApp function error:', error);
+    console.error('WhatsApp Function Error:', error);
     return {
       statusCode: 500,
-      headers: { 'Access-Control-Allow-Origin': '*' },
+      headers: { 
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify({
         success: false,
-        error: error.message
+        error: 'Terjadi kesalahan internal server.'
       })
     };
   }

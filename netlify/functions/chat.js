@@ -1,25 +1,65 @@
 /**
- * Netlify Function: Chat Proxy
- * Proxies requests to OpenRouter API securely
+ * Netlify Function: Chat Proxy for SIKU
+ * Proxies requests to OpenRouter or Gemini API securely
  */
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+// PERBAIKAN: URL Gemini yang benar (Google Generative Language API)
+const GEMINI_API_URL = process.env.GEMINI_API_URL || 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent'; 
 const SITE_URL = process.env.SITE_URL || 'https://ptsiku.netlify.app';
 
 const SYSTEM_PROMPT = `Anda adalah SISIKU, asisten virtual PT Sinergi Insan Karya Utama (SIKU).
-Perusahaan kami menyediakan layanan:
-1. Konsultasi Manajemen (KPI, OKR, SOP, Risk Management)
-2. Manajemen SDM (Rekrutmen, HR Outsourcing, Payroll System)
-3. Jasa Administrasi Kantor (Virtual Assistant, Manajemen Dokumen)
+Layanan kami:
+1. Konsultasi Manajemen (KPI, OKR, SOP)
+2. Manajemen SDM (Rekrutmen, HR Outsourcing)
+3. Jasa Administrasi Kantor
 
-Jawab pertanyaan pelanggan dengan profesional, ringkas, dan helpful.
-Tawarkan untuk menghubungkan dengan tim jika diperlukan konsultasi lebih detail.`;
+Jawab dengan profesional, ringkas, dan helpful dalam Bahasa Indonesia.`;
+
+const buildSuccessResponse = (reply) => ({
+  statusCode: 200,
+  headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
+  body: JSON.stringify({ reply })
+});
+
+const buildErrorResponse = (status, error, reply) => ({
+  statusCode: status,
+  headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
+  body: JSON.stringify({ error, reply })
+});
+
+// Helper khusus untuk format API Gemini (bukan format OpenAI)
+const callGemini = async (message) => {
+  const payload = {
+    contents: [{
+      parts: [{
+        text: `${SYSTEM_PROMPT}\n\nUser: ${message}`
+      }]
+    }]
+  };
+
+  // Gemini menggunakan query parameter key, bukan Header Authorization Bearer
+  const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    throw new Error(`Gemini API Error: ${response.status}`);
+  }
+
+  const data = await response.json();
+  // Extract text dari struktur respons Gemini
+  return data.candidates?.[0]?.content?.parts?.[0]?.text || 'Maaf, saya tidak bisa memproses permintaan ini.';
+};
 
 exports.handler = async (event) => {
-  // Handle CORS preflight
+  // 1. Handle CORS
   if (event.httpMethod === 'OPTIONS') {
     return {
-      statusCode: 200,
+      statusCode: 204,
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
@@ -29,85 +69,67 @@ exports.handler = async (event) => {
   }
 
   if (event.httpMethod !== 'POST') {
-    return {
-      statusCode: 405,
-      headers: { 'Access-Control-Allow-Origin': '*' },
-      body: JSON.stringify({ error: 'Method Not Allowed' })
-    };
+    return buildErrorResponse(405, 'Method Not Allowed', 'Only POST allowed');
   }
 
   try {
     const { message } = JSON.parse(event.body || '{}');
 
     if (!message || typeof message !== 'string') {
-      return {
-        statusCode: 400,
-        headers: { 'Access-Control-Allow-Origin': '*' },
-        body: JSON.stringify({ error: 'Invalid message' })
-      };
+      return buildErrorResponse(400, 'Invalid message', 'Pesan tidak valid.');
     }
 
-    if (!OPENROUTER_API_KEY) {
-      console.error('Missing OPENROUTER_API_KEY');
-      return {
-        statusCode: 500,
-        headers: { 'Access-Control-Allow-Origin': '*' },
-        body: JSON.stringify({
-          error: 'API configuration missing',
-          reply: 'Maaf, fitur chat sedang tidak tersedia. Silakan hubungi kami via WhatsApp.'
-        })
-      };
+    if (!OPENROUTER_API_KEY && !GEMINI_API_KEY) {
+      return buildErrorResponse(500, 'Config Error', 'Fitur chat sedang maintenance.');
     }
 
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-        'HTTP-Referer': SITE_URL,
-        'X-Title': 'SIKU Chatbot'
-      },
-      body: JSON.stringify({
-        model: 'qwen/qwen3.6-plus-preview:free',
-        messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
-          { role: 'user', content: message }
-        ],
-        temperature: 0.7,
-        max_tokens: 500
-      })
-    });
+    // 2. Try OpenRouter (Qwen) First
+    if (OPENROUTER_API_KEY) {
+      try {
+        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+            'HTTP-Referer': SITE_URL,
+            'X-Title': 'SIKU Chatbot'
+          },
+          body: JSON.stringify({
+            model: 'qwen/qwen-2.5-7b-instruct:free', // Model stabil & free
+            messages: [
+              { role: 'system', content: SYSTEM_PROMPT },
+              { role: 'user', content: message }
+            ],
+            temperature: 0.7,
+            max_tokens: 500
+          })
+        });
 
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      console.error('OpenRouter API error:', error);
-      return {
-        statusCode: response.status,
-        headers: { 'Access-Control-Allow-Origin': '*' },
-        body: JSON.stringify({
-          error: 'Chat API Error',
-          reply: 'Maaf, ada kesalahan saat memproses permintaan Anda.'
-        })
-      };
+        if (response.ok) {
+          const data = await response.json();
+          const reply = data.choices?.[0]?.message?.content || 'Maaf, saya tidak memahami pertanyaan Anda.';
+          return buildSuccessResponse(reply);
+        }
+      } catch (err) {
+        console.warn('OpenRouter failed, falling back to Gemini');
+      }
     }
 
-    const data = await response.json();
-    const reply = data.choices?.[0]?.message?.content || 'Maaf, saya tidak bisa memproses permintaan ini.';
+    // 3. Fallback to Gemini
+    if (GEMINI_API_KEY) {
+      try {
+        const reply = await callGemini(message);
+        return buildSuccessResponse(reply);
+      } catch (err) {
+        console.error('Gemini Error:', err.message);
+        return buildErrorResponse(502, 'Gemini Error', 'Terjadi kesalahan pada server AI.');
+      }
+    }
 
-    return {
-      statusCode: 200,
-      headers: { 'Access-Control-Allow-Origin': '*' },
-      body: JSON.stringify({ reply })
-    };
+    return buildErrorResponse(500, 'No Provider', 'Layanan chat tidak tersedia.');
+
   } catch (error) {
-    console.error('Chat function error:', error);
-    return {
-      statusCode: 500,
-      headers: { 'Access-Control-Allow-Origin': '*' },
-      body: JSON.stringify({
-        error: error.message,
-        reply: 'Maaf, ada kesalahan teknis. Silakan coba lagi.'
-      })
-    };
+    console.error('Chat Function Critical Error:', error);
+    return buildErrorResponse(500, 'Internal Error', 'Terjadi kesalahan sistem.');
   }
 };
