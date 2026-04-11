@@ -1,0 +1,33 @@
+{
+  "name": "website-siku",
+  "version": "1.0.0",
+  "description": "Website resmi PT Sinergi Insan Karya Utama (SIKU) - Konsultasi Manajemen & SDM",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve .",
+    "dev": "npx serve . --port 3000",
+    "build": "echo 'No build step required for static site'",
+    "preview": "npx serve ."
+  },
+  "keywords": [
+    "konsultasi",
+    "manajemen",
+    "SDM",
+    "pelatihan",
+    "administrasi",
+    "SIKU"
+  ],
+  "author": "PT Sinergi Insan Karya Utama",
+  "license": "ISC",
+  "devDependencies": {
+    "serve": "^14.2.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/username/website-siku.git"
+  },
+  "homepage": "https://ptsiku.com",
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
