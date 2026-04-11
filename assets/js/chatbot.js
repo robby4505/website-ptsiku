@@ -5,9 +5,10 @@
  */
 
 // Configuration - API endpoints (no secrets here)
+// These map to Netlify Functions which proxy to external APIs securely
 const API_CONFIG = {
-  CHAT_ENDPOINT: '/api/chat',
-  WHATSAPP_ENDPOINT: '/api/whatsapp',
+  CHAT_ENDPOINT: '/.netlify/functions/chat',
+  WHATSAPP_ENDPOINT: '/.netlify/functions/whatsapp',
   PHONE_NUMBER: '6282278399722'
 };
 

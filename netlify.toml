@@ -1,0 +1,18 @@
+# Netlify configuration for SIKU website
+
+[build]
+  command = "echo 'Static site - no build needed'"
+  publish = "."
+
+[functions]
+  directory = "netlify/functions"
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+[dev]
+  functions = "netlify/functions"
+  publish = "."
+  port = 8888
