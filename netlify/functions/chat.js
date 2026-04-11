@@ -6,6 +6,7 @@
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 // PERBAIKAN: URL Gemini yang benar (Google Generative Language API)
+// YANG BENAR (URL Google Generative Language)
 const GEMINI_API_URL = process.env.GEMINI_API_URL || 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent'; 
 const SITE_URL = process.env.SITE_URL || 'https://ptsiku.netlify.app';
 

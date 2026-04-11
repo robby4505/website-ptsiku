@@ -1,34 +1,26 @@
-# Netlify configuration for SIKU website
-# Author: Hanif Robbyanto
-
 [build]
-  # Command kosong karena ini static site, tapi kita pastikan tidak error
   command = "echo 'Building SIKU Static Site'"
-  # Publish folder root karena index.html ada di dasar folder
   publish = "."
+
+[build.environment]
+  # Beritahu Netlify bahwa keys ini aman dan dikelola via Environment Variables
+  SECRETS_SCAN_OMIT_KEYS = "OPENROUTER_API_KEY,FLOWKIRIM_API_KEY,GEMINI_API_KEY,SITE_URL,NODE_ENV"
 
 [functions]
   directory = "netlify/functions"
-  # Paksa penggunaan esbuild untuk kompatibilitas lebih baik dengan module system
   node_bundler = "esbuild"
-  # Tentukan versi Node.js yang stabil (Netlify default biasanya 18 atau 20)
-  external_node_modules = []
 
-# Redirect agar frontend bisa panggil /api/chat alih-alih /.netlify/functions/chat
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
   status = 200
   force = true
 
-# Konfigurasi Development Lokal (netlify dev)
 [dev]
   functions = "netlify/functions"
   publish = "."
   port = 8888
-  targetPort = 3000 # Jika Anda menjalankan 'npm run dev' di terminal lain
 
-# Header Keamanan & CORS Global (Opsional, tapi bagus untuk API)
 [[headers]]
   for = "/api/*"
   [headers.values]
