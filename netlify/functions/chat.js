@@ -5,10 +5,9 @@
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-// PERBAIKAN: URL Gemini yang benar (Google Generative Language API)
-// YANG BENAR (URL Google Generative Language)
-const GEMINI_API_URL = process.env.GEMINI_API_URL || 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent'; 
-const SITE_URL = process.env.SITE_URL || 'https://ptsiku.netlify.app';
+// URL Resmi Google Generative Language API (Bukan OpenAI)
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent'; 
+const SITE_URL = process.env.SITE_URL || ''; // Ambil dari Env Vars Netlify, jangan hardcode
 
 const SYSTEM_PROMPT = `Anda adalah SISIKU, asisten virtual PT Sinergi Insan Karya Utama (SIKU).
 Layanan kami:
@@ -20,18 +19,26 @@ Jawab dengan profesional, ringkas, dan helpful dalam Bahasa Indonesia.`;
 
 const buildSuccessResponse = (reply) => ({
   statusCode: 200,
-  headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
+  headers: { 
+    'Access-Control-Allow-Origin': '*', 
+    'Content-Type': 'application/json' 
+  },
   body: JSON.stringify({ reply })
 });
 
 const buildErrorResponse = (status, error, reply) => ({
   statusCode: status,
-  headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
+  headers: { 
+    'Access-Control-Allow-Origin': '*', 
+    'Content-Type': 'application/json' 
+  },
   body: JSON.stringify({ error, reply })
 });
 
-// Helper khusus untuk format API Gemini (bukan format OpenAI)
+// Helper khusus untuk format API Gemini (Google AI SDK Format)
 const callGemini = async (message) => {
+  if (!GEMINI_API_KEY) throw new Error('Missing Gemini Key');
+
   const payload = {
     contents: [{
       parts: [{
@@ -40,7 +47,7 @@ const callGemini = async (message) => {
     }]
   };
 
-  // Gemini menggunakan query parameter key, bukan Header Authorization Bearer
+  // Gemini menggunakan query parameter key, bukan Header Authorization
   const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -48,7 +55,8 @@ const callGemini = async (message) => {
   });
 
   if (!response.ok) {
-    throw new Error(`Gemini API Error: ${response.status}`);
+    const errData = await response.json().catch(() => ({}));
+    throw new Error(`Gemini API Error: ${response.status} - ${JSON.stringify(errData)}`);
   }
 
   const data = await response.json();

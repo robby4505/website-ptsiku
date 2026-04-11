@@ -3,7 +3,7 @@
   publish = "."
 
 [build.environment]
-  # Beritahu Netlify bahwa keys ini aman dan dikelola via Environment Variables
+  # Beritahu Netlify bahwa keys ini aman karena dikelola via Dashboard Environment Variables
   SECRETS_SCAN_OMIT_KEYS = "OPENROUTER_API_KEY,FLOWKIRIM_API_KEY,GEMINI_API_KEY,SITE_URL,NODE_ENV"
 
 [functions]
