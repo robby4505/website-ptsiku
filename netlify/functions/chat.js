@@ -7,8 +7,7 @@ const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 // URL Resmi Google Generative Language API (Bukan OpenAI)
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent'; 
-const SITE_URL = process.env.SITE_URL || ''; // Ambil dari Env Vars Netlify, jangan hardcode
-
+const SITE_URL = process.env.SITE_URL || ''; 
 const SYSTEM_PROMPT = `Anda adalah SISIKU, asisten virtual PT Sinergi Insan Karya Utama (SIKU).
 Layanan kami:
 1. Konsultasi Manajemen (KPI, OKR, SOP)
